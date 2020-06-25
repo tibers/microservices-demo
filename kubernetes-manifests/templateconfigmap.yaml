@@ -1,0 +1,461 @@
+apiVersion: v1
+data:
+  ad.html: |-
+    {{ define "text_ad" }}
+    <div class="container">
+        <div class="alert alert-dark" role="alert">
+            <strong>Advertisement:</strong>
+            <a href="{{.RedirectUrl}}" rel="nofollow" target="_blank" class="alert-link">
+                {{.Text}}
+            </a>
+        </div>
+    </div>
+    {{ end }}
+  cart.html: |
+    {{ define "cart" }}
+        {{ template "header" . }}
+        <div {{ with $.platform_css }} class="{{.}}" {{ end }}>
+            <span class="platform-flag">
+              {{$.platform_name}}
+            </span>
+          </div>
+        <main role="main" class="cart">
+            <div class="cart-bg">
+                <div class="container py-3 px-lg-5 py-lg-5">
+                    {{ if eq (len $.items) 0 }}
+                        <h3>Your shopping cart is empty!</h3>
+                        <p>Items you add to your shopping cart will appear here.</p>
+                        <a class="btn btn-info" href="/" role="button">Browse Products &rarr; </a>
+                    {{ else }}
+
+                        <div class="row mb-3 py-2">
+                            <div class="col">
+                                <h3>{{ $.cart_size }} item
+                                    {{- if gt ($.cart_size) 1}}s{{end}}
+                                    in your cart</h3>
+                            </div>
+                            <div class="col text-right">
+                                <form method="POST" action="/cart/empty">
+                                    <button class="btn btn-secondary empty-btn" type="submit">Empty cart</button>
+                                    <a class="btn btn-info" href="/" role="button">Keep browsing</a>
+                                </form>
+
+                            </div>
+                        </div>
+
+                        {{ range $.items }}
+                        <div class="product-item">
+                            <div class="row pt-2 mb-2">
+                                <div class="col text-right image">
+                                        <a href="/product/{{.Item.Id}}"><img class="img-fluid"
+                                            src="{{.Item.Picture}}" /></a>
+                                </div>
+                                <div class="col text-left text">
+                                    <h4>{{ .Item.Name }}</h4>
+                                    <p><small class="text-muted">SKU: #{{ .Item.Id }}</small></p>
+                                    <div class="details">
+                                        Quantity: {{ .Quantity }}<br/>
+                                        <strong>
+                                            {{ renderMoney .Price }}
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{ end }}
+                        <div class="row pt-2 my-3">
+                            <div class="col text-center order-summary">
+                                <p class="text-muted my-0">Shipping Cost: <strong>{{ renderMoney .shipping_cost }}</strong></p>
+                                Total Cost: <strong>{{ renderMoney .total_cost }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="row py-3 my-2 checkout">
+                            <div class="col-12 col-lg-8 offset-lg-2">
+                                <h3 class="text-center">Checkout</h3>
+                                <form action="/cart/checkout" method="POST">
+                                    <div class="form-row">
+                                        <div class="col-md-5 mb-3">
+                                                <label for="email">E-mail Address</label>
+                                                <input type="email" class="form-control" id="email"
+                                                    name="email" value="someone@example.com" required>
+                                            </div>
+                                        <div class="col-md-5 mb-3">
+                                            <label for="street_address">Street Address</label>
+                                            <input type="text" class="form-control"  name="street_address"
+                                                id="street_address" value="1600 Amphitheatre Parkway" required>
+                                        </div>
+                                        <div class="col-md-2 mb-3">
+                                            <label for="zip_code">Zip Code</label>
+                                            <input type="text" class="form-control"
+                                                name="zip_code" id="zip_code" value="94043" required pattern="\d{4,5}">
+                                        </div>
+
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="col-md-5 mb-3">
+                                                <label for="city">City</label>
+                                                <input type="text" class="form-control" name="city" id="city"
+                                                    value="Mountain View" required>
+                                            </div>
+                                        <div class="col-md-2 mb-3">
+                                            <label for="state">State</label>
+                                            <input type="text" class="form-control" name="state" id="state"
+                                                value="CA" required>
+                                        </div>
+                                        <div class="col-md-5 mb-3">
+                                            <label for="country">Country</label>
+                                            <input type="text" class="form-control" id="country"
+                                                placeholder="Country Name"
+                                                name="country" value="United States" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="credit_card_number">Credit Card Number</label>
+                                            <input type="text" class="form-control" id="credit_card_number"
+                                                name="credit_card_number"
+                                                placeholder="0000-0000-0000-0000"
+                                                value="4432-8015-6152-0454"
+                                                required pattern="\d{4}-\d{4}-\d{4}-\d{4}">
+                                        </div>
+                                        <div class="col-md-2 mb-3">
+                                            <label for="credit_card_expiration_month">Month</label>
+                                            <select name="credit_card_expiration_month" id="credit_card_expiration_month"
+                                                class="form-control">
+                                                <option value="1">January</option>
+                                                <option value="2">February</option>
+                                                <option value="3">March</option>
+                                                <option value="4">April</option>
+                                                <option value="5">May</option>
+                                                <option value="6">June</option>
+                                                <option value="7">July</option>
+                                                <option value="8">August</option>
+                                                <option value="9">September</option>
+                                                <option value="10">October</option>
+                                                <option value="11">November</option>
+                                                <option value="12">January</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 mb-3">
+                                                <label for="credit_card_expiration_year">Year</label>
+                                                <select name="credit_card_expiration_year" id="credit_card_expiration_year"
+                                                    class="form-control">
+                                                {{ range $i, $y := $.expiration_years}}<option value="{{$y}}"
+                                                    {{if eq $i 1 -}}
+                                                        selected="selected"
+                                                    {{- end}}
+                                                >{{$y}}</option>{{end}}
+                                                </select>
+                                            </div>
+                                        <div class="col-md-2 mb-3">
+                                            <label for="credit_card_cvv">CVV</label>
+                                            <input type="password" class="form-control" id="credit_card_cvv"
+                                                name="credit_card_cvv" value="672" required pattern="\d{3}">
+                                        </div>
+                                    </div>
+                                    <div class="form-row center-contents last-row">
+                                        <button class="btn btn-info" type="submit">Place order</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    {{ end }} <!-- end if $.items -->
+
+                </div>
+                {{ if $.recommendations}}
+                    {{ template "recommendations" $.recommendations }}
+                {{ end }}
+            </div>
+        </main>
+        {{ template "footer" . }}
+        {{ end }}
+  error.html: |-
+    {{ define "error" }}
+        {{ template "header" . }}
+        <div {{ with $.platform_css }} class="{{.}}" {{ end }}>
+            <span class="platform-flag">
+              {{$.platform_name}}
+            </span>
+          </div>
+        <main role="main">
+            <div class="py-5">
+                <div class="container bg-light py-3 px-lg-5 py-lg-5">
+                    <h1>Uh, oh!</h1>
+                    <p>Something has failed. Below are some details for debugging.</p>
+
+                    <p><strong>HTTP Status:</strong> {{.status_code}} {{.status}}</p>
+                    <pre class="border border-danger p-3"
+                        style="white-space: pre-wrap; word-break: keep-all;">
+                        {{- .error -}}
+                    </pre>
+                </div>
+            </div>
+        </main>
+
+        {{ template "footer" . }}
+        {{ end }}
+  footer.html: |-
+    {{ define "footer" }}
+
+    <footer class="py-5">
+        <div class="footer-top">
+            <div class="container footer-social">
+                    <p class="footer-text">© 2020 Google Inc (<a href="https://github.com/GoogleCloudPlatform/microservices-demo">Source Code</a>) — </p>
+                    <p class="footer-text">  This website is hosted for demo purposes only. It is not an actual shop. This is not a Google product.</p>
+            </div>
+
+        </div>
+    </footer>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
+        integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous">
+    </script>
+    </body>
+
+    </html>
+    {{ end }}
+  header.html: |-
+    {{ define "header" }}
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Online Boutique</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
+            crossorigin="anonymous">
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/static/styles/styles.css">
+        <link rel="stylesheet" type="text/css" href="/static/styles/cart.css">
+        <link rel="stylesheet" type="text/css" href="/static/styles/order.css">
+        <link rel='shortcut icon' type='image/x-icon' href='/static/favicon.ico' />
+    </head>
+
+    <body>
+        <header>
+            <div class="navbar">
+                <div class="container d-flex justify-content-between">
+                    <div class="h-free-shipping">Free shipping with $75 purchase! &nbsp;&nbsp;</div>
+
+
+                    {{ if $.show_currency }}
+                    <div class="h-controls">
+                        <div class="h-control">
+                            <img src="/static/icons/Hipster_CurrencyIcon.svg" alt="icon" class="icon" />
+                            <form method="POST" class="controls-form" action="/setCurrency" id="currency_form" >
+                                <select name="currency_code" onchange="document.getElementById('currency_form').submit();">
+                                        {{range $.currencies}}
+                                    <option value="{{.}}" {{if eq . $.user_currency}}selected="selected"{{end}}>{{.}}</option>
+                                    {{end}}
+                                </select>
+                            </form>
+                            <img src="/static/icons/Hipster_DownArrow.svg" alt="icon" class="icon arrow" />
+                        </div>
+                    </div>
+                    {{ end }}
+
+                </div>
+            </div>
+            <div class="navbar sub-navbar">
+                <div class="container d-flex justify-content-between">
+                    <a href="/" class="navbar-brand d-flex align-items-center">
+                        <img src="/static/icons/Hipster_NavLogo.svg" alt="logo" class="logo" />
+                    </a>
+                    <div class="controls">
+                        <a href="/cart">
+                            <img src="/static/icons/Hipster_CartIcon.svg" alt="cart-icon" class="logo" />
+                            <span>Cart
+                                {{ if $.cart_size }}
+                                <span class="badge badge-blue">{{$.cart_size}}</span>
+                                {{ end }}
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </header>
+        {{end}}
+  home.html: |-
+    {{ define "home" }}
+
+    {{ template "header" . }}
+    <div {{ with $.platform_css }} class="{{.}}" {{ end }}>
+      <span class="platform-flag">
+        {{$.platform_name}}
+      </span>
+    </div>
+    <main role="main" class="home">
+      <section class="jumbotron text-center mb-0 h-jumbotron">
+        <div class="container">
+          <img src="/static/icons/Hipster_HeroLogo.svg" alt="icon" class="icon search-icon" />
+        </div>
+      </section>
+
+      <div class="h-grid py-5 bg-light">
+        <div class="container">
+          <div class="row h-row">
+            <img src="/static/icons/Hipster_HotProducts.svg" alt="icon" class="icon search-icon" />
+          </div>
+          <div class="row">
+            {{ range $.products }}
+            <div class="col-md-4">
+              <div class="h-card card mb-4 box-shadow">
+                <a href="/product/{{.Item.Id}}">
+                  <img alt="" style="width: 100%; height: auto;" src="{{.Item.Picture}}">
+                  <div class="card-hover"></div>
+                </a>
+                <div class="card-body h-card-body">
+                  <h5 class="card-title h-card-title">
+                    {{ .Item.Name }}
+                  </h5>
+                  <div class="d-flex justify-content-center align-items-center">
+                    <small class="text-muted">
+                      {{ renderMoney .Price }}
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {{ end }}
+          </div>
+        </div>
+      </div>
+    </main>
+
+    {{ template "footer" . }}
+
+    {{ end }}
+  order.html: |
+    {{ define "order" }}
+        {{ template "header" . }}
+        <div {{ with $.platform_css }} class="{{.}}" {{ end }}>
+            <span class="platform-flag">
+              {{$.platform_name}}
+            </span>
+          </div>
+        <main role="main" class="order">
+            <div class="py-5">
+                <div class="container py-3 px-lg-5">
+                    <div class="row mt-5 py-2">
+                        <div class="col text-center">
+                            <img class="order-logo" src="/static/icons/Hipster_HeroLogoCyan.svg" alt="icon" />
+                            <h3>
+                                Your order is complete!
+                            </h3>
+                            <p>Order Confirmation ID</p>
+                            <p class="mg-bt"><strong>{{.order.OrderId}}</strong></p>
+                            <p>Shipping Tracking ID</p>
+                            <p class="mg-bt"><strong>{{.order.ShippingTrackingId}}</strong></p>
+                            <p>Shipping Cost</p>
+                            <p class="mg-bt"><strong>{{renderMoney .order.ShippingCost}}</strong></p>
+                            <p>Total Paid</p>
+                            <p class="mg-bt"><strong>{{renderMoney .total_paid}}</strong></p>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="container py-3 px-lg-5">
+                    <div class="row py-2 text-center">
+                        <a class="btn btn-info" href="/" role="button" style="margin-top: 40px; margin-bottom: 40px;">Keep Browsing</a>
+                    </div>
+                </div>
+                {{ if $.recommendations }}
+                    {{ template "recommendations" $.recommendations }}
+                {{ end }}
+            </div>
+        </main>
+
+        {{ template "footer" . }}
+        {{ end }}
+  product.html: |-
+    {{ define "product" }}
+    {{ template "header" . }}
+    <div {{ with $.platform_css }} class="{{.}}" {{ end }}>
+      <span class="platform-flag">
+        {{$.platform_name}}
+      </span>
+    </div>
+
+    <main role="main">
+      <div class="h-product">
+        <div class="row">
+          <div class="col">
+            <img src="{{$.product.Item.Picture}}" />
+          </div>
+          <div class="product-info col">
+            <div class="product-wrapper">
+              <h2>{{$.product.Item.Name}}</h2>
+
+              <p class="text-muted">
+                {{ renderMoney $.product.Price}}
+              </p>
+              <div>
+                <h6>Product Description:</h6>
+                {{$.product.Item.Description}}
+              </div>
+
+              <form method="POST" action="/cart" class="form-inline">
+                <input type="hidden" name="product_id" value="{{$.product.Item.Id}}" />
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text" for="quantity">Quantity</label>
+                  </div>
+                  <select name="quantity" id="quantity" class="custom-select form-control form-control-lg">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>10</option>
+                  </select>
+                  <button type="submit" class="btn btn-info btn-lg ml-3">Add to Cart</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container py-3 px-lg-5 py-lg-5">
+        {{ if $.recommendations}}
+          {{ template "recommendations" $.recommendations }}
+        {{ end }}
+
+       {{ with $.ad }}{{ template "text_ad" . }}{{ end}}
+
+      </div>
+    </main>
+    {{ template "footer" . }}
+    {{ end }}
+  recommendations.html: |-
+    {{ define "recommendations" }}
+    <section class="recommendations">
+        <div class="container">
+          <div class="image">
+            <img src="/static/icons/Hipster_OtherProducts.svg" alt="icon" />
+          </div>
+          <div class="row prods">
+              {{range . }}
+              <div class="col-md-3">
+                <div class="h-card card mb-3 box-shadow">
+                  <a href="/product/{{.Id}}">
+                    <img alt="" style="width: 100%; height: auto;" src="{{.Picture}}">
+                    <div class="card-hover"></div>
+                  </a>
+                  <div class="card-body text-center py-2">
+                    <h5 class="card-title h-card-title">
+                      {{ .Name }}
+                    </h5>
+                  </div>
+                </div>
+              </div>
+              {{ end }}
+            </div>
+        </div>
+    </section>
+    {{ end }}
+kind: ConfigMap
+metadata:
+  name: demotemplates

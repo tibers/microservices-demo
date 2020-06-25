@@ -30,6 +30,9 @@ spec:
       containers:
         - name: server
           image: frontend
+          volumeMounts:
+          - mountPath: /templates
+            name: configvolume
           ports:
           - containerPort: 8080
           readinessProbe:
@@ -80,6 +83,10 @@ spec:
             limits:
               cpu: 200m
               memory: 128Mi
+      volumes:
+        - name: configvolume
+          configMap:
+            name: demotemplates
 ---
 apiVersion: v1
 kind: Service
